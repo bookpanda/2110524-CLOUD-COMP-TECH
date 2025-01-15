@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 //     $_SERVER['RDS_PASSWORD'],
                 //     'ebdb'
                 // );
-                $conn = new mysqli('autoscaling.cekjl3c7gsvo.us-west-2.rds.amazonaws.com', 'root', '123456', 'ebdb');
+                $conn = new mysqli('ec2-43-208-204-45.ap-southeast-7.compute.amazonaws.com', 'root', 'new-password', 'ebdb');
                 // Check connection
                 if (mysqli_connect_errno()) {
                     echo "Failed to connect to MySQL: " . mysqli_connect_error();

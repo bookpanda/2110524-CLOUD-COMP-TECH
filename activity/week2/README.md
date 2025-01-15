@@ -21,11 +21,11 @@ sudo make install
 siege -c5 -d1 -r1 http://www.google.com
 ```
 
-# Webserver
-- name: webserver
+# Database
+- name: database
 - AZ: ap-southeast-7a
 ```bash
-ssh -i "act2-cloud.pem" ec2-user@ec2-43-208-24-57.ap-southeast-7.compute.amazonaws.com
+ssh -i "act2-cloud.pem" ec2-user@ec2-43-208-204-45.ap-southeast-7.compute.amazonaws.com
 
 sudo yum install mariadb-server
 sudo systemctl enable mariadb
@@ -52,6 +52,26 @@ CREATE TABLE user (
 DESCRIBE user;
 ```
 
-# Database
-- name: database
+# Webserver
+- name: webserver
 - AZ: ap-southeast-7a
+```bash
+sudo yum install php-mysql php php-xml php-mcrypt php-mbstring php-cli mysql httpd tcpdump emacs
+
+# give permission to ec2-user
+sudo chown ec2-user:ec2-user /var/www/html
+
+# transfer files
+scp -i ./act2-cloud.pem -r ./webserver ec2-user@ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com:/var/www/html/
+
+cd /var/www/html/webserver
+mv * ..
+rm -r webserver
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+# verify
+sudo systemctl is-enabled httpd
+
+
+```
