@@ -39,9 +39,6 @@ siege -c10 -d1 -r1 http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.co
 # Longest transaction:       230180.00 ms
 # Shortest transaction:           0.00 ms
 siege -c100 -d1 -r1 http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
-
-siege -c50 -d1 -r1 -L siege_output.log http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
-
 ```
 
 # Database
