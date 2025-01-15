@@ -24,6 +24,7 @@ siege -c5 -d1 -r1 http://www.google.com
 # Database
 - name: database
 - AZ: ap-southeast-7a
+- security group inbound: MySQL/Aurora (3306)
 ```bash
 ssh -i "act2-cloud.pem" ec2-user@ec2-43-208-204-45.ap-southeast-7.compute.amazonaws.com
 
@@ -50,11 +51,26 @@ CREATE TABLE user (
 
 -- check
 DESCRIBE user;
+
+-- Failed to connect to MySQL: Host 'ip-172-31-23-231.ap-southeast-7.compute.internal' is not allowed to connect to this MariaDB server
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'new-password' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+-- Failed to connect to MySQL: Access denied for user 'root'@'ip-172-31-23-231.ap-southeast-7.compute.internal' (using password: YES)
+
+```
+
+# Allow outside access to database
+```bash
+echo "[mysqld]" | sudo tee -a /etc/my.cnf
+echo "bind-address = 0.0.0.0" | sudo tee -a /etc/my.cnf
+sudo systemctl restart mariadb
 ```
 
 # Webserver
 - name: webserver
 - AZ: ap-southeast-7a
+- security group inbound: HTTP (80)
 ```bash
 sudo yum install php-mysql php php-xml php-mcrypt php-mbstring php-cli mysql httpd tcpdump emacs
 
@@ -72,6 +88,5 @@ sudo systemctl start httpd
 sudo systemctl enable httpd
 # verify
 sudo systemctl is-enabled httpd
-
-
+sudo systemctl status httpd
 ```
