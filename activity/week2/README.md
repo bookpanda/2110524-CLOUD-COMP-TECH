@@ -14,8 +14,10 @@ unzip master.zip
 
 # in siege-master
 utils/bootstrap
-
-cd /usr/local
+./configure
+make
+sudo make install
+siege -c5 -d1 -r1 http://www.google.com
 ```
 
 # Webserver
