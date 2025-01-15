@@ -19,6 +19,29 @@ utils/bootstrap
 make
 sudo make install
 siege -c5 -d1 -r1 http://www.google.com
+
+# after app is deployed & connected to db
+# c = concurrent users, d = delay between requests (s), r = repetitions/user
+
+# everything fine
+siege -c10 -d1 -r1 http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
+
+# Transactions:                  78    hits
+# Availability:                  51.32 %
+# Elapsed time:                 231.24 secs
+# Data transferred:               0.17 MB
+# Response time:              76611.29 ms
+# Transaction rate:               0.34 trans/sec
+# Throughput:                     0.00 MB/sec
+# Concurrency:                   25.84
+# Successful transactions:       78
+# Failed transactions:           74
+# Longest transaction:       230180.00 ms
+# Shortest transaction:           0.00 ms
+siege -c100 -d1 -r1 http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
+
+siege -c50 -d1 -r1 -L siege_output.log http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
+
 ```
 
 # Database
@@ -55,9 +78,7 @@ DESCRIBE user;
 -- Failed to connect to MySQL: Host 'ip-172-31-23-231.ap-southeast-7.compute.internal' is not allowed to connect to this MariaDB server
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'new-password' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
-
--- Failed to connect to MySQL: Access denied for user 'root'@'ip-172-31-23-231.ap-southeast-7.compute.internal' (using password: YES)
-
+-- use root, new-password in app code
 ```
 
 # Allow outside access to database
