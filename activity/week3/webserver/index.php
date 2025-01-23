@@ -64,12 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>
                 <!-- add mysql connection here -->
                 <?php
-                $conn = new mysqli(
-                    $_SERVER['RDS_HOSTNAME'],
-                    $_SERVER['RDS_USERNAME'],
-                    $_SERVER['RDS_PASSWORD'],
-                    'ebdb'
-                );
+                // $conn = new mysqli(
+                //     $_SERVER['RDS_HOSTNAME'],
+                //     $_SERVER['RDS_USERNAME'],
+                //     $_SERVER['RDS_PASSWORD'],
+                //     'ebdb'
+                // );
+                $conn = new mysqli('ec2-43-208-204-45.ap-southeast-7.compute.amazonaws.com', 'root', 'new-password', 'ebdb');
                 // Check connection
                 if (mysqli_connect_errno()) {
                     echo "Failed to connect to MySQL: " . mysqli_connect_error();
