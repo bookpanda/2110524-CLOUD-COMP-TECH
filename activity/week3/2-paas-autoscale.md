@@ -1,8 +1,14 @@
-# Instance Profile
+# Commands
+```bash
+# clean IP from known_hosts in case EC2 IP changes
+ssh-keygen -R ec2-13-228-214-88.ap-southeast-1.compute.amazonaws.com  
+```
+
+# Instance Profile (you can use EC2 instance role instead)
 ```bash
 aws iam create-instance-profile --instance-profile-name paas-autoscale
 
-# role name from craeting beanstalk
+# role name from creating beanstalk
 aws iam add-role-to-instance-profile --instance-profile-name paas-autoscale --role-name aws-elasticbeanstalk-service-role
 
 aws iam list-instance-profiles
@@ -20,14 +26,13 @@ My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`, so
 - try changing Deployment policy to `Immutable`, then deploy again
 
 
-## Policies in EB service role
+## aws-elasticbeanstalk-service-role 
+### Policies
 - AWSElasticBeanstalkWebTier (for web tier permissions).
 - AWSElasticBeanstalkWorkerTier (for worker tier permissions).
-- AmazonS3FullAccess (for access to S3 buckets, very important for deployment).
 - CloudWatchLogsFullAccess (for CloudWatch logs).
 
-## Trust policy for EB service role
-- EC2 also needs to access S3 to retrieve the application version from the S3 bucket.
+### Trust policy
 ```json
 {
     "Version": "2012-10-17",
@@ -38,17 +43,18 @@ My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`, so
                 "Service": "elasticbeanstalk.amazonaws.com"
             },
             "Action": "sts:AssumeRole"
-        },
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "ec2.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
         }
     ]
 }
 ```
+
+## aws-elasticbeanstalk-ec2-role (EC2 instance role)
+you create this role to use instead of instance profile
+### Policies
+- AmazonEC2ReadOnlyAccess
+- AmazonS3ReadOnlyAccess
+- CloudWatchLogsFullAccess
+
 ```bash
 # ssh into EC2, not the Beanstalk
 ssh -i "cloud-computing.pem" ec2-user@ec2-13-228-214-88.ap-southeast-1.compute.amazonaws.com
