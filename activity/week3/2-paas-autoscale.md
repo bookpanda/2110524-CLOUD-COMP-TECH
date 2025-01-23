@@ -65,4 +65,23 @@ sudo cat /var/log/eb-engine.log | less
 # confirm symbolic link
 ls -l /var/www/html
 
+sudo systemctl status nginx
+sudo systemctl restart nginx
+
+/etc/nginx/nginx.conf
+/etc/nginx/conf.d/elasticbeanstalk
+
+sudo tail -f /var/log/nginx/error.log
 ```
+
+## 504 timeout
+### Sol 1
+```bash
+sudo nano /etc/nginx/nginx.conf
+# FastCGI timeouts
+fastcgi_read_timeout 300;
+fastcgi_send_timeout 300;
+fastcgi_connect_timeout 300;
+```
+### Sol 2
+Max execution time: 300s
