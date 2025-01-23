@@ -1,35 +1,21 @@
-# Siege
-- name: siege-web-client
-- OS: Amazon Linux 2 AMI
-- AZ: ap-southeast-1a
+# Instance Profile
 ```bash
-ssh -i "cloud-computing.pem" ec2-user@ec2-13-212-58-124.ap-southeast-1.compute.amazonaws.com
+aws iam create-instance-profile --instance-profile-name paas-autoscale
 
-sudo yum install gcc aclocal autoheader automake libtool
-wget https://github.com/JoeDog/siege/archive/refs/heads/master.zip
-unzip master.zip
+# role name from craeting beanstalk
+aws iam add-role-to-instance-profile --instance-profile-name paas-autoscale --role-name aws-elasticbeanstalk-service-role
 
-# in siege-master
-utils/bootstrap
-./configure
-make
-sudo make install
-siege -c5 -d1 -r1 http://www.google.com
-
-# after app is deployed & connected to db
-# c = concurrent users, d = delay between requests (s), r = repetitions/user
-
-# everything fine
-siege -c10 -d1 -r1 http://ec2-43-208-115-242.ap-southeast-7.compute.amazonaws.com/index.php
-
-# Transactions:                  78    hits
-# Availability:                  51.32 %
-# Elapsed time:                 231.24 secs
-# Data transferred:               0.17 MB
-# Response time:              76611.29 ms
-# Transaction rate:               0.34 trans/sec
-# Throughput:                     0.00 MB/sec
-# Concurrency:                   25.84
-# Succ
+aws iam list-instance-profiles
 ```
 
+# Beanstalk
+- name: act3-paas-autoscale
+- Platform: PHP 8.3
+- EC2 instance profile: paas-autoscale
+- Root volume type: gp3 (General Purpose 3 SSD)
+- No need to tick "Public IP Address", that's for public EC2 (we are using Beanstalk's load balancer dns)
+```bash
+# ssh into EC2, not the Beanstalk
+ssh -i "cloud-computing.pem" ec2-user@ec2-13-228-32-11.ap-southeast-1.compute.amazonaws.com
+
+```
