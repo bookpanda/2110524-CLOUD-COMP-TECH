@@ -20,11 +20,35 @@ My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`, so
 - try changing Deployment policy to `Immutable`, then deploy again
 
 
-# Policies in EB service role
+## Policies in EB service role
 - AWSElasticBeanstalkWebTier (for web tier permissions).
 - AWSElasticBeanstalkWorkerTier (for worker tier permissions).
 - AmazonS3FullAccess (for access to S3 buckets, very important for deployment).
 - CloudWatchLogsFullAccess (for CloudWatch logs).
+
+## Trust policy for EB service role
+- EC2 also needs to access S3 to retrieve the application version from the S3 bucket.
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "elasticbeanstalk.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+```
 ```bash
 # ssh into EC2, not the Beanstalk
 ssh -i "cloud-computing.pem" ec2-user@ec2-13-228-214-88.ap-southeast-1.compute.amazonaws.com
