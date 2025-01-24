@@ -161,4 +161,6 @@ siege -c10 -d1 -r1 http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.
 sudo nano siege_runner.sh
 chmod +x siege_runner.sh
 ./siege_runner.sh
+
+scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
 ```

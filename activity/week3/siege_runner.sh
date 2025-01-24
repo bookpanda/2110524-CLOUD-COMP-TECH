@@ -2,7 +2,7 @@
 
 concurrency=10  # Starting value for concurrency (-c)
 delay=1         # Delay between requests (-d)
-repeats=1       # Number of repetitions (-r)
+repeats=5       # Number of repetitions (-r)
 url="http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com"
 log_file="siege.log"
 
