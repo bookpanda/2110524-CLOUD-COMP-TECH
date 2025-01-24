@@ -1,12 +1,12 @@
 #!/bin/bash
 
 concurrency=10  # Starting value for concurrency (-c)
-delay=0.01         # Delay between requests (-d)
-repeats=100       # Number of repetitions (-r)
+delay=1         # Delay between requests (-d)
+repeats=1       # Number of repetitions (-r)
 url="http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com"
 log_file="siege.log"
 
-for i in {1..24}; do
+for i in {1..10}; do
     echo "Running siege with concurrency=$concurrency, delay=$delay, repeats=$repeats..."
     
     siege -c$concurrency -d$delay -r$repeats "$url" -l \
