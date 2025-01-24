@@ -83,7 +83,7 @@ you should point health check to `/logo_aws_reduced.gif` as there's no matrix mu
 - `$size` = 8 took 90s to load
 
 > Note that Sol 1, 2 do not persist when uploading a new version of the app or when scaling
-### Sol 1 use Nginx
+### Sol 1: use Nginx
 ```bash
 sudo nano /etc/nginx/nginx.conf
 # FastCGI timeouts
@@ -94,7 +94,7 @@ fastcgi_connect_timeout 300;
 sudo systemctl restart nginx
 sudo systemctl status nginx
 ```
-### Sol 2 use Apache (httpd)
+### Sol 2: use Apache (httpd)
 ```bash
 sudo nano /etc/httpd/conf/httpd.conf
 
@@ -108,3 +108,21 @@ sudo systemctl status httpd
 ### REAL Solution
 - Since `$size` 8, 128 took same time to load, it's not causing the PHP timeout.
 - The real culprit is the MySql connection, which hadn't been set up yet.
+
+## Deploying RDS
+- do it in EB env console
+
+You don't have to modify the `indedx.php` file for connection; set the environment variables in the EB console instead:
+- RDS_HOSTNAME: your_rds_endpoint (look in RDS service in AWS console)
+- RDS_USERNAME: your_rds_username
+- RDS_PASSWORD: your_rds_password
+
+it will match with
+```php
+$conn = new mysqli(
+        $_SERVER['RDS_HOSTNAME'],
+        $_SERVER['RDS_USERNAME'],
+        $_SERVER['RDS_PASSWORD'],
+        'ebdb'
+    );
+```
