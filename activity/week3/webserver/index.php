@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return $result;
             }
 
-            $size = 128;
+            $size = 32;
             $A = [];
             $B = [];
 

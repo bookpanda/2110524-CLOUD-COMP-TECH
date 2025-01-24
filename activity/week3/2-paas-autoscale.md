@@ -1,7 +1,7 @@
 # Commands
 ```bash
 # clean IP from known_hosts in case EC2 IP changes
-ssh-keygen -R ec2-13-228-214-88.ap-southeast-1.compute.amazonaws.com  
+ssh-keygen -R ec2-13-213-231-32.ap-southeast-1.compute.amazonaws.com
 ```
 
 # Instance Profile (you can use EC2 instance role instead)
@@ -17,20 +17,14 @@ aws iam list-instance-profiles
 # Beanstalk
 - name: act3-paas-autoscale
 - Platform: PHP 8.3
-- EC2 instance profile: paas-autoscale
-- Root volume type: gp3 (General Purpose 3 SSD)
-- No need to tick "Public IP Address", that's for public EC2 (we are using Beanstalk's load balancer dns)
-
-### Deployment not updating
-My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`, so I had to redeploy
-- try changing Deployment policy to `Immutable`, then deploy again
-
+- Service role: aws-elasticbeanstalk-service-role
+- EC2 instance profile: aws-elasticbeanstalk-ec2-role
+- tick "Public IP Address" + AZ subnets
 
 ## aws-elasticbeanstalk-service-role 
 ### Policies
 - AWSElasticBeanstalkWebTier (for web tier permissions).
 - AWSElasticBeanstalkWorkerTier (for worker tier permissions).
-- CloudWatchLogsFullAccess (for CloudWatch logs).
 
 ### Trust policy
 ```json
@@ -49,15 +43,18 @@ My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`, so
 ```
 
 ## aws-elasticbeanstalk-ec2-role (EC2 instance role)
-you create this role to use instead of instance profile
+you can create this role to use instead of instance profile
 ### Policies
-- AmazonEC2ReadOnlyAccess
-- AmazonS3ReadOnlyAccess
-- CloudWatchLogsFullAccess
+- AWSElasticBeanstalkWebTier (has access to S3, CloudWatch, etc.)
 
+### Deployment not updating
+- My EC2 instance did not contain the app in `/var/www/html`/`var/app/current`.
+- That was because my EC2 did not have the correct instance profile/role.
+
+## Debugging in EC2
 ```bash
 # ssh into EC2, not the Beanstalk
-ssh -i "cloud-computing.pem" ec2-user@ec2-13-228-214-88.ap-southeast-1.compute.amazonaws.com
+ssh -i "cloud-computing.pem" ec2-user@ec2-13-213-231-32.ap-southeast-1.compute.amazonaws.com
 
 # check logs
 sudo cat /var/log/eb-engine.log | less
@@ -74,8 +71,16 @@ sudo systemctl restart nginx
 sudo tail -f /var/log/nginx/error.log
 ```
 
-## 504 timeout
-### Sol 1
+## 504 timeout for index.php (/)
+check if web is running, go to
+> `http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com/logo_aws_reduced.gif`
+
+you should point health check to `/logo_aws_reduced.gif` as there's no matrix mul
+
+### This does not work
+- setting Max execution time: 300s in EB console
+
+### Sol 1 use Nginx
 ```bash
 sudo nano /etc/nginx/nginx.conf
 # FastCGI timeouts
@@ -83,5 +88,15 @@ fastcgi_read_timeout 300;
 fastcgi_send_timeout 300;
 fastcgi_connect_timeout 300;
 ```
-### Sol 2
-Max execution time: 300s
+### Sol 2 use Apache (httpd)
+```bash
+sudo nano /etc/httpd/conf/httpd.conf
+
+Timeout 300
+ProxyTimeout 300
+KeepAliveTimeout 300
+```
+
+### Sol 3 
+- set `$size` in `index.php` to smaller values e.g. 128 -> 32
+- better than Sol 1, 2 as when EB scales, you don't have to SSH to modify timeout config for new EC2 instances
