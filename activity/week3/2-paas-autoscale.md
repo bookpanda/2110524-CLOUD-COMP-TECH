@@ -144,3 +144,21 @@ ssh -i "cloud-computing.pem" ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.am
 
 siege -c10 -d1 -r1 http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com
 ```
+
+# D. Assess application baseline performance
+In siege-web-client EC2
+```bash
+# See permissions
+ls -l siege.log 
+
+chmod 777 siege.log
+cat /usr/local/var/log/siege.log
+
+# run with logging
+siege -c10 -d1 -r1 http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com -l
+
+# custom script
+sudo nano siege_runner.sh
+chmod +x siege_runner.sh
+./siege_runner.sh
+```
