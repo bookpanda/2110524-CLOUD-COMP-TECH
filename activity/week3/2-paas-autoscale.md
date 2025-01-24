@@ -62,8 +62,6 @@ sudo cat /var/log/eb-engine.log | less
 # confirm symbolic link
 ls -l /var/www/html
 
-
-
 /etc/nginx/nginx.conf
 /etc/nginx/conf.d/elasticbeanstalk
 
@@ -125,4 +123,10 @@ $conn = new mysqli(
         $_SERVER['RDS_PASSWORD'],
         'ebdb'
     );
+```
+
+### Creating table
+in EC2,
+```bash
+sudo yum repolist enabled | grep mysql
 ```
