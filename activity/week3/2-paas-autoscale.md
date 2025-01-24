@@ -186,6 +186,8 @@ scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute
 - Upper threshold: 80, Lower threshold: 60
 - Increase by: 1, Decrease by: 1
 
+> In Auto Scaling group, enable Auto Scaling group metrics collection of the EB's ASG to count the number of instances.
+
 In siege
 ```bash
 ./siege_runner.sh
