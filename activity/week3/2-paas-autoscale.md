@@ -62,8 +62,7 @@ sudo cat /var/log/eb-engine.log | less
 # confirm symbolic link
 ls -l /var/www/html
 
-sudo systemctl status nginx
-sudo systemctl restart nginx
+
 
 /etc/nginx/nginx.conf
 /etc/nginx/conf.d/elasticbeanstalk
@@ -79,7 +78,11 @@ you should point health check to `/logo_aws_reduced.gif` as there's no matrix mu
 
 ### This does not work
 - setting Max execution time: 300s in EB console
+- set `$size` in `index.php` to smaller values e.g. 128 -> 32
+- `$size` = 128 took 90s to load
+- `$size` = 8 took 90s to load
 
+> Note that Sol 1, 2 do not persist when uploading a new version of the app or when scaling
 ### Sol 1 use Nginx
 ```bash
 sudo nano /etc/nginx/nginx.conf
@@ -87,16 +90,21 @@ sudo nano /etc/nginx/nginx.conf
 fastcgi_read_timeout 300;
 fastcgi_send_timeout 300;
 fastcgi_connect_timeout 300;
+
+sudo systemctl restart nginx
+sudo systemctl status nginx
 ```
 ### Sol 2 use Apache (httpd)
 ```bash
 sudo nano /etc/httpd/conf/httpd.conf
 
 Timeout 300
-ProxyTimeout 300
 KeepAliveTimeout 300
+
+sudo systemctl restart httpd
+sudo systemctl status httpd
 ```
 
-### Sol 3 
-- set `$size` in `index.php` to smaller values e.g. 128 -> 32
-- better than Sol 1, 2 as when EB scales, you don't have to SSH to modify timeout config for new EC2 instances
+### REAL Solution
+- Since `$size` 8, 128 took same time to load, it's not causing the PHP timeout.
+- The real culprit is the MySql connection, which hadn't been set up yet.
