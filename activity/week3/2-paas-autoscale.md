@@ -130,7 +130,7 @@ $conn = new mysqli(
 ### Creating table
 Apparently, EC2 in EB cannot download mysql client, so do this instead:
 1. Add security group inbound rule to access RDS (3306)
-2. Publicly accessible: Yes
+2. In RDS console, Publicly accessible: Yes
 3. Connect via DBeaver or MySQL Workbench
 4. Create table
 - name: user
@@ -174,3 +174,19 @@ scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute
 - You're burning your CPU credits
 - When it runs out, your account will be charged for the bursted CPU usage 💀
 - So, EC2 instance > Actions > Instance Settings > Change credit specification > uncheck "Unlimited Mode"
+
+# E. Set up your auto-scaling environment
+- Env type: Load balanced
+- Max instances: 4
+- scaling cooldown: 60s
+- Metric: CPUUtilization
+- Statistic: Average
+- Unit: Percent
+- Period: 1min, Breach duration: 1min
+- Upper threshold: 80, Lower threshold: 60
+- Increase by: 1, Decrease by: 1
+
+In siege
+```bash
+./siege_runner.sh
+```
