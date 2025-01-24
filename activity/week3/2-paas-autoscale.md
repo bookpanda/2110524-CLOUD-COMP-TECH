@@ -112,7 +112,7 @@ sudo systemctl status httpd
 ## Deploying RDS
 - do it in EB env console
 
-You don't have to modify the `indedx.php` file for connection; set the environment variables in the EB console instead:
+You don't have to modify the `index.php` file for connection; set the environment variables in the EB console instead:
 - RDS_HOSTNAME: your_rds_endpoint (look in RDS service in AWS console)
 - RDS_USERNAME: your_rds_username
 - RDS_PASSWORD: your_rds_password
