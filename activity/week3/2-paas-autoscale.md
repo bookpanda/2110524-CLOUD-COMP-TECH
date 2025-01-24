@@ -14,7 +14,8 @@ aws iam add-role-to-instance-profile --instance-profile-name paas-autoscale --ro
 aws iam list-instance-profiles
 ```
 
-# Beanstalk
+# A. Deploy app using Elastic Beanstalk
+## Beanstalk Environment
 - name: act3-paas-autoscale
 - Platform: PHP 8.3
 - Service role: aws-elasticbeanstalk-service-role
@@ -107,6 +108,7 @@ sudo systemctl status httpd
 - Since `$size` 8, 128 took same time to load, it's not causing the PHP timeout.
 - The real culprit is the MySql connection, which hadn't been set up yet.
 
+# B. Set up MySQL database
 ## Deploying RDS
 - do it in EB env console
 
@@ -126,7 +128,19 @@ $conn = new mysqli(
 ```
 
 ### Creating table
-in EC2,
+Apparently, EC2 in EB cannot download mysql client, so do this instead:
+1. Add security group inbound rule to access RDS (3306)
+2. Publicly accessible: Yes
+3. Connect via DBeaver or MySQL Workbench
+4. Create table
+- name: user
+- columns: id (INT), username (VARCHAR(63))
+> every refresh on the page will add a new user
+
+# C. Test that your app works
+In siege-web-client EC2
 ```bash
-sudo yum repolist enabled | grep mysql
+ssh -i "cloud-computing.pem" ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.amazonaws.com
+
+siege -c10 -d1 -r1 http://act3-paas-autoscale-5-env.eba-4ifhnppy.ap-southeast-1.elasticbeanstalk.com
 ```
