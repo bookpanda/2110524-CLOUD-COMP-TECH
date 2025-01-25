@@ -107,5 +107,9 @@ chmod +x siege_runner.sh
 ./siege_runner.sh
 
 # download log
-scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
+scp -i ./cloud-computing.pem -r ec2-user@ec2-52-77-227-237.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
 ```
+
+# B. Set up your IaaS auto-scaling environment
+- create an AMI from the webserver instance: "phpiaasapp"
+- try creating EC2 from that AMI to see if it works
