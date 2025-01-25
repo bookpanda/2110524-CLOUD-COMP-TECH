@@ -86,3 +86,26 @@ echo "[mysqld]" | sudo tee -a /etc/my.cnf
 echo "bind-address = 0.0.0.0" | sudo tee -a /etc/my.cnf
 sudo systemctl restart mariadb
 ```
+
+# A. Assess your application's baseline IaaS performance
+In siege-web-client EC2
+```bash
+ssh -i "cloud-computing.pem" ec2-user@ec2-52-77-227-237.ap-southeast-1.compute.amazonaws.com
+
+# See permissions
+ls -l siege.log 
+
+chmod 777 siege.log
+cat /usr/local/var/log/siege.log
+
+# clear log (BE CAREFUL)
+truncate -s 0 siege.log
+
+# custom script
+sudo nano siege_runner.sh
+chmod +x siege_runner.sh
+./siege_runner.sh
+
+# download log
+scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
+```
