@@ -113,3 +113,30 @@ scp -i ./cloud-computing.pem -r ec2-user@ec2-52-77-227-237.ap-southeast-1.comput
 # B. Set up your IaaS auto-scaling environment
 - create an AMI from the webserver instance: "phpiaasapp"
 - try creating EC2 from that AMI to see if it works
+
+> ASG uses launch template + ELB (aka target group), launch template uses AMI
+
+## Launch Template
+- name: phpiaasapplaunch
+- AMI: phpiaasapp
+- instance type: t2.micro
+- subnet: ap-southeast-1a
+- security group inbound: 22, 80
+- security group outbound: all
+
+## Auto Scaling Group
+- name: phpiaasgroup
+- launch template: phpiaasapplaunch
+- subnets: ap-southeast-1a, ap-southeast-1b
+- load balancing: attach to a new load balancer, ALB, internet-facing
+- min: 1, max: 4
+- metric: Average CPU Utilization, target value 60, warmup 60s
+- Enable group metrics collection within CloudWatch
+
+### Add security groups to ELB
+- 80, 22
+
+### ELB health check
+- target group -> health check -> /logo_aws_reduced.gif
+
+# C. Experiment with siege to trigger events to add instances and remove instances
