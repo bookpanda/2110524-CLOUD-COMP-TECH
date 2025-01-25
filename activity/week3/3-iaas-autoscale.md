@@ -140,3 +140,7 @@ scp -i ./cloud-computing.pem -r ec2-user@ec2-52-77-227-237.ap-southeast-1.comput
 - target group -> health check -> /logo_aws_reduced.gif
 
 # C. Experiment with siege to trigger events to add instances and remove instances
+- use ELB DNS, not EC2's
+
+# D. Experiment with fault tolerance
+- change min instances to 2 in ASG
