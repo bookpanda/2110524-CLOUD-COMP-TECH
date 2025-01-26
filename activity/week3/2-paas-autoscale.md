@@ -174,6 +174,7 @@ scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute
 - You're burning your CPU credits
 - When it runs out, your account will be charged for the bursted CPU usage 💀
 - So, EC2 instance > Actions > Instance Settings > Change credit specification > uncheck "Unlimited Mode"
+- Next, you need to USE UP ALL YOUR CREDITS in that EC2 intance e.g. by running a heavy siege. When it's run out, now you can test the real siege performace.
 
 # E. Set up your auto-scaling environment
 - Env type: Load balanced
