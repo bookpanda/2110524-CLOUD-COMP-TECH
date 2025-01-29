@@ -34,11 +34,11 @@ truncate -s 0 siege.log
 
 # custom script
 sudo nano siege_runner.sh
-chmod +x siege_runner.sh
+sudo chmod +x siege_runner.sh
 ./siege_runner.sh
 
 # download log
-scp -i ./cloud-computing.pem -r ec2-user@ec2-13-250-59-51.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
+scp -i ./cloud-computing.pem -r ec2-user@ec2-52-221-248-144.ap-southeast-1.compute.amazonaws.com:/usr/local/var/log/siege.log ./siege.log
 ```
 
 # Lambda
