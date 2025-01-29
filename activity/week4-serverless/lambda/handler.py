@@ -5,8 +5,8 @@ def lambda_handler(event, context):
     # TODO implement
     try:
         body = json.loads(event["body"])
-        a = body.get("a", "9")
-        b = body.get("b", "6")
+        a = int(body.get("a", "9"))
+        b = int(body.get("b", "6"))
         op = body.get("op", "+")
 
         result = a
