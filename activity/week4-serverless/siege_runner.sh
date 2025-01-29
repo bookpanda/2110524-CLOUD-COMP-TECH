@@ -6,7 +6,7 @@ repeats=1       # Number of repetitions (-r)
 url='https://szzhh8og17.execute-api.ap-southeast-1.amazonaws.com/default/act4 POST {"a": "2", "b": 3, "op": "*"}'
 log_file="siege.log"
 
-for i in {1..20}; do
+for i in {1..40}; do
     echo "Running siege with concurrency=$concurrency, delay=$delay, repeats=$repeats..."
     
     siege -c$concurrency -d$delay -r$repeats --content-type "application/json" "$url" -l \
