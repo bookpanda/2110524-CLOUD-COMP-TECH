@@ -8,8 +8,15 @@ load_dotenv()
 lambda_url = os.getenv("LAMBDA_URL")
 
 
-def add(x, y):
-    return x + y
+def view():
+    response = requests.post(lambda_url, json={"command": "view"})
+    if response.status_code == 200:
+        files: list = response.json()["files"]
+
+        return files
+    else:
+        print(response.json()["error"])
+        return None
 
 
 def subtract(x, y):
@@ -25,20 +32,6 @@ def divide(x, y):
         print("Error: Division by zero.")
         return None
     return x / y
-
-
-def print_help():
-    print(
-        """
-Available commands:
-1. add <x> <y>      - Add two numbers
-2. subtract <x> <y> - Subtract two numbers
-3. multiply <x> <y> - Multiply two numbers
-4. divide <x> <y>   - Divide two numbers
-5. help              - Show this help message
-6. quit              - Exit the program
-    """
-    )
 
 
 def main():
@@ -61,6 +54,12 @@ If you want to quit the program just type quit.
         if command[0] == "quit":
             print("======================================================")
             break
+
+        elif command[0] == "view":
+            files = view()
+            if files is not None:
+                for file in files:
+                    print(file)
 
         elif command[0] == "put":
             if len(command) != 2:
