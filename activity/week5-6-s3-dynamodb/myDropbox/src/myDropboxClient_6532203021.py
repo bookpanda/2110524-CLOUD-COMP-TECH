@@ -33,7 +33,7 @@ def get(key: str, owner: str):
         return None
 
 
-def download_file(url: str, filename: str):
+def download_file(url: str, filename: str, owner: str):
     """Downloads a file from the given URL and saves it locally."""
     try:
         response = requests.get(url, stream=True)
@@ -45,7 +45,10 @@ def download_file(url: str, filename: str):
 
         print(f"File downloaded successfully: {filename}")
     except requests.exceptions.RequestException as e:
-        print(f"Failed to download file: {e}")
+        if response.status_code == 404:
+            print(f"File not found: {filename} owned by {owner}")
+        else:
+            print(f"Failed to download file: {e}")
 
 
 def put(filepath: str, user: str):
@@ -109,6 +112,9 @@ If you want to quit the program just type quit.
             break
 
         elif command[0] == "view":
+            if current_user is None:
+                print("Please login first.")
+                continue
             files = view(current_user)
             if files is not None:
                 for file in files:
@@ -121,9 +127,14 @@ If you want to quit the program just type quit.
             key, owner = command[1], command[2]
             file_url = get(key, owner)
 
+            # TODO: check for shared files
+            if owner != current_user:
+                print("You don't have permission to access this file.")
+                continue
+
             if file_url:
                 filename = os.path.basename(key)
-                download_file(file_url, filename)
+                download_file(file_url, filename, owner)
             else:
                 print("Failed to retrieve the file URL.")
 
@@ -142,8 +153,13 @@ If you want to quit the program just type quit.
             # password = command[2]
             current_user = username
 
+        elif command[0] == "logout":
+            current_user = None
+
         else:
-            print("Invalid command. Current supported commands: view, get, put, quit")
+            print(
+                "Invalid command. Current supported commands: view, get, put, login, quit"
+            )
 
 
 if __name__ == "__main__":
