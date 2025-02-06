@@ -14,16 +14,16 @@ def lambda_handler(event, context):
         key = body.get("key", "")
 
         if command == "put":
-            file_content = body.get("file_content", "")
-            response = s3.put_object(
-                Bucket=BUCKET_NAME, Key=key, Body=file_content.encode("utf-8")
+            content_type = body.get("content_type")
+            presigned_url = generate_presigned_url(
+                BUCKET_NAME, key, "put_object", content_type
             )
             return {
                 "statusCode": 200,
-                "body": json.dumps({"response": response}),
+                "body": json.dumps({"upload_url": presigned_url}),
             }
         elif command == "get":
-            presigned_url = generate_presigned_url(BUCKET_NAME, key)
+            presigned_url = generate_presigned_url(BUCKET_NAME, key, "get_object")
             return {
                 "statusCode": 200,
                 "body": json.dumps({"presigned_url": presigned_url}),
@@ -43,23 +43,33 @@ def lambda_handler(event, context):
                 "body": json.dumps({"error": "Invalid command"}),
             }
 
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Invalid JSON in body"}),
+            "body": json.dumps({"error": f"Invalid JSON: {str(e)}"}),
         }
     except Exception as e:
         return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
 
 
-def generate_presigned_url(bucket_name, file_key, expiration=3600):
+def generate_presigned_url(
+    bucket_name: str,
+    file_key: str,
+    purpose: str,
+    content_type=None,
+    expiration=3600,
+):
     """
     Generates a pre-signed URL for accessing an S3 object.
     """
     try:
+        params = {"Bucket": bucket_name, "Key": file_key}
+        if content_type:
+            params["ContentType"] = content_type
+
         url = s3.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": file_key},
+            purpose,
+            Params=params,
             ExpiresIn=expiration,
         )
         return url
