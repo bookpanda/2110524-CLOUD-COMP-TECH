@@ -9,8 +9,10 @@ load_dotenv()
 lambda_url = os.getenv("LAMBDA_URL")
 
 
-def view():
-    response = requests.post(lambda_url, json={"command": "view"})
+def view(user: str):
+    response = requests.post(
+        lambda_url, json={"command": "view", "folder_prefix": user}
+    )
     if response.status_code == 200:
         files: list = response.json()["files"]
 
@@ -20,10 +22,9 @@ def view():
         return None
 
 
-def get(key, owner):
-    response = requests.post(
-        lambda_url, json={"command": "get", "key": key, "owner": owner}
-    )
+def get(key: str, owner: str):
+    onwer_key = f"{owner}/{key}"
+    response = requests.post(lambda_url, json={"command": "get", "key": onwer_key})
     if response.status_code == 200:
         file_url = response.json()["presigned_url"]
         return file_url
@@ -32,7 +33,7 @@ def get(key, owner):
         return None
 
 
-def download_file(url, filename):
+def download_file(url: str, filename: str):
     """Downloads a file from the given URL and saves it locally."""
     try:
         response = requests.get(url, stream=True)
@@ -47,7 +48,7 @@ def download_file(url, filename):
         print(f"Failed to download file: {e}")
 
 
-def put(filepath):
+def put(filepath: str, user: str):
     if not os.path.isfile(filepath):
         print(f"File '{filepath}' does not exist.")
         return
@@ -62,7 +63,7 @@ def put(filepath):
         lambda_url,
         json={
             "command": "put",
-            "key": filename,
+            "key": f"{user}/{filename}",
             "content_type": content_type,
         },
     )
@@ -94,8 +95,11 @@ If you want to quit the program just type quit.
 """
     )
 
+    current_user: str = None
+
     while True:
-        raw_command = input(">>")
+        prompt = ">>" if current_user is None else f"{current_user}>>"
+        raw_command = input(prompt)
         command = raw_command.strip().lower().split()
         if len(command) == 0:
             continue
@@ -105,7 +109,7 @@ If you want to quit the program just type quit.
             break
 
         elif command[0] == "view":
-            files = view()
+            files = view(current_user)
             if files is not None:
                 for file in files:
                     print(file)
@@ -128,7 +132,15 @@ If you want to quit the program just type quit.
                 print("Invalid command, format: 'put <filepath>'")
                 continue
             filepath = command[1]
-            put(filepath)
+            put(filepath, current_user)
+
+        elif command[0] == "login":
+            if len(command) != 3:
+                print("Invalid command, format: 'login <username> <password>'")
+                continue
+            username = command[1]
+            # password = command[2]
+            current_user = username
 
         else:
             print("Invalid command. Current supported commands: view, get, put, quit")

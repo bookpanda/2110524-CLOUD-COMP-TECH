@@ -29,7 +29,8 @@ def lambda_handler(event, context):
                 "body": json.dumps({"presigned_url": presigned_url}),
             }
         elif command == "view":
-            file_list = list_s3_objects(BUCKET_NAME)
+            folder_prefix = body.get("folder_prefix")
+            file_list = list_s3_objects(BUCKET_NAME, folder_prefix)
             return {
                 "statusCode": 200,
                 "body": json.dumps({"files": file_list}, default=str),
@@ -75,26 +76,26 @@ def generate_presigned_url(
         return f"Error generating presigned URL: {str(e)}"
 
 
-def list_s3_objects(bucket_name):
+def list_s3_objects(bucket_name, folder_prefix):
     """
     Lists objects in an S3 bucket and returns their details.
     """
     try:
-        response = s3.list_objects_v2(Bucket=bucket_name)
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=folder_prefix)
 
         if "Contents" not in response:
             return []
 
         files = []
         for obj in response["Contents"]:
+            filename = obj["Key"].split("/")[-1]
             file_info = {
-                "filename": obj["Key"],
+                "filename": filename,
                 "lastModifiedDate": obj[
                     "LastModified"
                 ].isoformat(),  # datetime to string
                 "size": obj["Size"],
-                "owner": obj.get("Owner", {}).get("DisplayName")
-                or obj.get("Owner", {}).get("ID", "Unknown"),
+                "owner": folder_prefix,
             }
             files.append(file_info)
 
