@@ -32,9 +32,7 @@ def lambda_handler(event, context):
             file_list = list_s3_objects(BUCKET_NAME)
             return {
                 "statusCode": 200,
-                "body": json.dumps(
-                    {"files": file_list}, default=str
-                ),  # Convert datetime to string
+                "body": json.dumps({"files": file_list}, default=str),
             }
 
         else:
