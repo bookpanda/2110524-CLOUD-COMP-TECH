@@ -10,6 +10,7 @@ lambda_url = os.getenv("LAMBDA_URL")
 
 
 def view(user: str):
+    """Retrieves a list of files in the user's folder."""
     response = requests.post(
         lambda_url, json={"command": "view", "folder_prefix": user}
     )
@@ -23,6 +24,7 @@ def view(user: str):
 
 
 def get(key: str, owner: str):
+    """Retrieves a presigned URL for the given file key."""
     onwer_key = f"{owner}/{key}"
     response = requests.post(lambda_url, json={"command": "get", "key": onwer_key})
     if response.status_code == 200:
@@ -52,6 +54,7 @@ def download_file(url: str, filename: str, owner: str):
 
 
 def put(filepath: str, user: str):
+    """Uploads a file to the user's folder."""
     if not os.path.isfile(filepath):
         print(f"File '{filepath}' does not exist.")
         return

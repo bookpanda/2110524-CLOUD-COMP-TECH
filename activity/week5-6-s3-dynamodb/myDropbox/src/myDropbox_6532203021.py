@@ -59,7 +59,7 @@ def generate_presigned_url(
     expiration=3600,
 ):
     """
-    Generates a pre-signed URL for accessing an S3 object.
+    Generates a pre-signed URL for accessing/uploading an S3 object.
     """
     try:
         params = {"Bucket": bucket_name, "Key": file_key}
