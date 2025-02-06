@@ -1,5 +1,5 @@
+import mimetypes
 import os
-import sys
 
 import requests
 from dotenv import load_dotenv
@@ -19,19 +19,60 @@ def view():
         return None
 
 
-def subtract(x, y):
-    return x - y
-
-
-def multiply(x, y):
-    return x * y
-
-
-def divide(x, y):
-    if y == 0:
-        print("Error: Division by zero.")
+def get(key, owner):
+    response = requests.post(
+        lambda_url, json={"command": "get", "key": key, "owner": owner}
+    )
+    if response.status_code == 200:
+        file_url = response.json()["presigned_url"]
+        return file_url
+    else:
+        print(response.json()["error"])
         return None
-    return x / y
+
+
+def download_file(url, filename):
+    """Downloads a file from the given URL and saves it locally."""
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # raise an error for bad status codes
+
+        with open(filename, "wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+
+        print(f"File downloaded successfully: {filename}")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to download file: {e}")
+
+
+def put(filepath):
+    if not os.path.isfile(filepath):
+        print(f"File '{filepath}' does not exist.")
+        return
+
+    content_type, _ = mimetypes.guess_type(filepath)
+    if content_type is None:
+        print(f"Could not determine the content type of '{filepath}'.")
+        return
+
+    with open(filepath, "rb") as file:
+        response = requests.post(
+            lambda_url,
+            json={"command": "put", "key": filepath, "content_type": content_type},
+        )
+        if response.status_code == 200:
+            upload_url = response.json()["upload_url"]
+            upload_response = requests.put(
+                upload_url, data=file, headers={"Content-Type": content_type}
+            )
+
+            if upload_response.status_code == 200:
+                print(f"File uploaded successfully: {filepath}")
+            else:
+                print(f"Failed to upload file: {upload_response.json()}")
+        else:
+            print(response.json()["error"])
 
 
 def main():
@@ -61,40 +102,27 @@ If you want to quit the program just type quit.
                 for file in files:
                     print(file)
 
+        elif command[0] == "get":
+            if len(command) != 3:
+                print("Invalid command, format: 'get <object_key> <owner>'")
+                continue
+            key, owner = command[1], command[2]
+            file_url = get(key, owner)
+
+            if file_url:
+                filename = os.path.basename(key)
+                download_file(file_url, filename)
+            else:
+                print("Failed to retrieve the file URL.")
+
         elif command[0] == "put":
             if len(command) != 2:
-                print("Invalid command. Type 'help' for usage.")
+                print("Invalid command, format: 'put <filepath>'")
                 continue
-            print("Put file")
+            filepath = command[1]
+
         else:
-            # Try to process commands with arguments
-            try:
-                parts = command.split()
-                if len(parts) != 3:
-                    print("Invalid command. Type 'help' for usage.")
-                    continue
-
-                # Extract command and arguments
-                cmd, x, y = parts[0], float(parts[1]), float(parts[2])
-
-                if cmd == "add":
-                    result = add(x, y)
-                elif cmd == "subtract":
-                    result = subtract(x, y)
-                elif cmd == "multiply":
-                    result = multiply(x, y)
-                elif cmd == "divide":
-                    result = divide(x, y)
-                else:
-                    print("Invalid command. Type 'help' for usage.")
-                    continue
-
-                if result is not None:
-                    print(f"Result: {result}")
-            except ValueError:
-                print("Invalid input. Please enter numbers for x and y.")
-            except Exception as e:
-                print(f"Error: {e}")
+            print("Invalid command.")
 
 
 if __name__ == "__main__":
