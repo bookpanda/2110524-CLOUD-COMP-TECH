@@ -1,5 +1,6 @@
 import mimetypes
 import os
+import readline  # enable input history
 
 import requests
 from dotenv import load_dotenv
@@ -56,11 +57,17 @@ def put(filepath):
         print(f"Could not determine the content type of '{filepath}'.")
         return
 
+    filename = os.path.basename(filepath)
+    response = requests.post(
+        lambda_url,
+        json={
+            "command": "put",
+            "key": filename,
+            "content_type": content_type,
+        },
+    )
+
     with open(filepath, "rb") as file:
-        response = requests.post(
-            lambda_url,
-            json={"command": "put", "key": filepath, "content_type": content_type},
-        )
         if response.status_code == 200:
             upload_url = response.json()["upload_url"]
             upload_response = requests.put(
@@ -68,7 +75,7 @@ def put(filepath):
             )
 
             if upload_response.status_code == 200:
-                print(f"File uploaded successfully: {filepath}")
+                print(f"File uploaded successfully: {filename}")
             else:
                 print(f"Failed to upload file: {upload_response.json()}")
         else:
@@ -88,7 +95,8 @@ If you want to quit the program just type quit.
     )
 
     while True:
-        command = input(">>").strip().lower().split()
+        raw_command = input(">>")
+        command = raw_command.strip().lower().split()
         if len(command) == 0:
             continue
 
@@ -120,6 +128,7 @@ If you want to quit the program just type quit.
                 print("Invalid command, format: 'put <filepath>'")
                 continue
             filepath = command[1]
+            put(filepath)
 
         else:
             print("Invalid command.")
