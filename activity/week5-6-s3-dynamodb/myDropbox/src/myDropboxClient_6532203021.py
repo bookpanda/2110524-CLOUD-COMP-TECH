@@ -131,7 +131,7 @@ If you want to quit the program just type quit.
             put(filepath)
 
         else:
-            print("Invalid command.")
+            print("Invalid command. Current supported commands: view, get, put, quit")
 
 
 if __name__ == "__main__":
