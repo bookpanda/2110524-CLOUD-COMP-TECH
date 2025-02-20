@@ -32,12 +32,14 @@ def lambda_handler(event, context):
         elif command == "get":
             owner = key.split("/")[0]
             if currentUser == owner:
+                # user is the owner of the file
                 presigned_url = generate_presigned_url(BUCKET_NAME, key, "get_object")
                 return {
                     "statusCode": 200,
                     "body": json.dumps({"presigned_url": presigned_url}),
                 }
 
+            # check if current user is authorized to access the file
             response = shares_table.query(
                 KeyConditionExpression="username = :pk AND objectKey = :sk",
                 ExpressionAttributeValues={
@@ -60,7 +62,10 @@ def lambda_handler(event, context):
             }
         elif command == "view":
             current_user = body.get("folder_prefix")
+            # list files in the user's folder
             file_list = list_s3_objects(BUCKET_NAME, current_user)
+
+            # list files shared with the user
             shared_files = shares_table.query(
                 KeyConditionExpression="username = :pk",
                 ExpressionAttributeValues={":pk": current_user},
@@ -69,6 +74,7 @@ def lambda_handler(event, context):
                 shared_key = item["objectKey"]
                 file_info = get_s3_object_info(BUCKET_NAME, shared_key)
                 file_list.append(file_info)
+
             return {
                 "statusCode": 200,
                 "body": json.dumps({"files": file_list}, default=str),
