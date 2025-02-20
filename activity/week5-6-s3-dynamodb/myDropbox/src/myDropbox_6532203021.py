@@ -74,13 +74,12 @@ def lambda_handler(event, context):
                 "body": json.dumps({"files": file_list}, default=str),
             }
         elif command == "share":
-            owner = key.split("/")[0]
-            if currentUser != owner:
+            # check file exists
+            response = s3.head_object(Bucket=BUCKET_NAME, Key=key)
+            if "ResponseMetadata" not in response:
                 return {
-                    "statusCode": 403,
-                    "body": json.dumps(
-                        {"error": "Current user is not the owner of the file"}
-                    ),
+                    "statusCode": 404,
+                    "body": json.dumps({"error": "File not found"}),
                 }
 
             shares_table.put_item(Item={"objectKey": key, "username": username})
