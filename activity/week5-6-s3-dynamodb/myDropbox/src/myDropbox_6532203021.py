@@ -30,14 +30,45 @@ def lambda_handler(event, context):
                 "body": json.dumps({"upload_url": presigned_url}),
             }
         elif command == "get":
+            owner = key.split("/")[0]
+            if currentUser == owner:
+                presigned_url = generate_presigned_url(BUCKET_NAME, key, "get_object")
+                return {
+                    "statusCode": 200,
+                    "body": json.dumps({"presigned_url": presigned_url}),
+                }
+
+            response = shares_table.query(
+                KeyConditionExpression="username = :pk AND objectKey = :sk",
+                ExpressionAttributeValues={
+                    ":pk": currentUser,
+                    ":sk": key,
+                },
+            )
+            if not response["Items"]:
+                return {
+                    "statusCode": 403,
+                    "body": json.dumps(
+                        {"error": "Current user is not authorized to access the file"}
+                    ),
+                }
+
             presigned_url = generate_presigned_url(BUCKET_NAME, key, "get_object")
             return {
                 "statusCode": 200,
                 "body": json.dumps({"presigned_url": presigned_url}),
             }
         elif command == "view":
-            folder_prefix = body.get("folder_prefix")
-            file_list = list_s3_objects(BUCKET_NAME, folder_prefix)
+            current_user = body.get("folder_prefix")
+            file_list = list_s3_objects(BUCKET_NAME, current_user)
+            shared_files = shares_table.query(
+                KeyConditionExpression="username = :pk",
+                ExpressionAttributeValues={":pk": current_user},
+            )
+            for item in shared_files["Items"]:
+                shared_key = item["objectKey"]
+                file_info = get_s3_object_info(BUCKET_NAME, shared_key)
+                file_list.append(file_info)
             return {
                 "statusCode": 200,
                 "body": json.dumps({"files": file_list}, default=str),
@@ -153,3 +184,19 @@ def list_s3_objects(bucket_name, folder_prefix):
         return files
     except Exception as e:
         return [{"error": f"Error listing objects: {str(e)}"}]
+
+
+def get_s3_object_info(bucket_name, file_key):
+    """
+    Retrieves details of an S3 object.
+    """
+    try:
+        response = s3.head_object(Bucket=bucket_name, Key=file_key)
+        return {
+            "filename": file_key.split("/")[-1],
+            "lastModifiedDate": response["LastModified"].isoformat(),
+            "size": response["ContentLength"],
+            "owner": file_key.split("/")[0],
+        }
+    except Exception as e:
+        return {"error": f"Error getting object info: {str(e)}"}
