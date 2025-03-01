@@ -1,11 +1,25 @@
 # VPC
 
+## Security Group
+default: allow all outbound traffic, deny all inbound traffic
+- can be changed e.g. SG2 allows inbound from SG1 (you don't need to add SG1 inbound from SG2)
+- instance level
+- looks at all the rules at once (allow only)
+
+## Network ACL
+- looks at the rules in priority order top->bottom (allow and deny)
+- subnet level
+- leave some space between rule numbers for future rules e.g. 100, 200 in case you need to add a rule in between 100 and 200
+
 EC2 in public subnet can access the internet
 ```bash
+# this needs SG with SSH inbound rule (All traffic inbound rule is not enough)
 ssh -i "cloud-computing.pem" ec2-user@ec2-13-214-210-230.ap-southeast-1.compute.amazonaws.com
 
 ping google.com
 
 # cannot ping EC2 in private subnet
+# after adding inbound from SG1 (public ec2) to SG2 (private ec2), you can ping
 ping 10.0.21.125
+
 ```
