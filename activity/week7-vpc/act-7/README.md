@@ -65,11 +65,11 @@ ping 10.1.1.75
 - don't forget to associate with wordpress-private subnet
 
 ### NAT Gateway
-- name: wordpress-ngw
+- name: mariadb-ngw
 - public, allocate EIP
-- attach to wordpress-private subnet
+-  **IMPORTANT** attach to wordpress-public subnet
 
 ### Private Route Table
 - name: wordpress-private-rt
 - 10.0.0.0/16 -> local
-- 0.0.0.0/0 -> wordpress-ngw
+- 0.0.0.0/0 -> mariadb-ngw
