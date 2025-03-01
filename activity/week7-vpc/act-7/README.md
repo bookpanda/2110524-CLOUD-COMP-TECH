@@ -21,5 +21,21 @@ ping google.com
 # cannot ping EC2 in private subnet
 # after adding inbound from SG1 (public ec2) to SG2 (private ec2), you can ping
 ping 10.0.21.125
+```
+
+## VPC Peering
+- connect 2 VPCs
+- VPC1: 10.0.0.0/16
+- VPC2: 10.1.0.0/16
+```bash
+# in public ec2 on VPC1, ping private IP of ec2 on VPC2, not working
+# 1. create peering connection between VPC1 and VPC2
+# 2. accept the peering connection on VPC2
+# 3. add to route table on VPC1: 10.1.0.0/16 -> peering connection
+# 4. add to route table on VPC2: 10.0.0.0/16 -> peering connection
+# 5. for ec2 in VPC2, add inbound rule from private IP of ec2 in VPC1 (10.0.1.103/32)
+# now ec2 in VPC1 can ping ec2 in VPC2
+ping 10.1.1.75
+
 
 ```
