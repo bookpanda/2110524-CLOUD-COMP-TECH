@@ -36,6 +36,38 @@ ping 10.0.21.125
 # 5. for ec2 in VPC2, add inbound rule from private IP of ec2 in VPC1 (10.0.1.103/32)
 # now ec2 in VPC1 can ping ec2 in VPC2
 ping 10.1.1.75
-
-
 ```
+
+# Setup
+## VPC
+- name: wordpress
+- IPv4 CIDR block: 10.0.0.0/16
+
+## Internet Gateway
+- name: wordpress-igw
+- attach to wordpress VPC
+
+## Public Subnet
+- name: wordpress-public
+- AZ: ap-southeast-1a
+- IPv4 CIDR block: 10.0.1.0/24
+
+### Public Route Table
+- name: wordpress-public-rt
+- 10.0.0.0/16 -> local
+- 0.0.0.0/0 -> wordpress-igw
+
+## Private Subnet
+- name: wordpress-private
+- AZ: ap-southeast-1a
+- IPv4 CIDR block: 10.0.2.0/24
+
+### NAT Gateway
+- name: wordpress-ngw
+- public, allocate EIP
+- attach to wordpress-private subnet
+
+### Private Route Table
+- name: wordpress-private-rt
+- 10.0.0.0/16 -> local
+- 0.0.0.0/0 -> wordpress-ngw
