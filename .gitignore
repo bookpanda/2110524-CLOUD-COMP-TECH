@@ -2,3 +2,7 @@
 .DS_Store
 *.zip
 __pycache__
+.venv
+.env
+test
+.early.coverage
