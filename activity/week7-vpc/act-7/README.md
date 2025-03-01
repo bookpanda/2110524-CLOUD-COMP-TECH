@@ -56,11 +56,13 @@ ping 10.1.1.75
 - name: wordpress-public-rt
 - 10.0.0.0/16 -> local
 - 0.0.0.0/0 -> wordpress-igw
+- don't forget to associate with wordpress-public subnet
 
 ## Private Subnet
 - name: wordpress-private
 - AZ: ap-southeast-1a
 - IPv4 CIDR block: 10.0.2.0/24
+- don't forget to associate with wordpress-private subnet
 
 ### NAT Gateway
 - name: wordpress-ngw
