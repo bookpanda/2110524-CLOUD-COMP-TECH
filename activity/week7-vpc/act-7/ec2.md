@@ -6,11 +6,12 @@
 ### Wordpress SG
 - inbound: 22, 80
 ```bash
-ssh -i "cloud-computing.pem" ec2-user@13.212.2.220
+ssh -i "cloud-computing.pem" ec2-user@52.221.210.159
 
 sudo yum update -y
 sudo amazon-linux-extras enable php8.0
 sudo yum install -y httpd php php-mysqlnd php-fpm php-json php-mbstring php-xml unzip
+sudo yum install -y mariadb
 
 sudo systemctl enable --now httpd
 
@@ -30,10 +31,17 @@ sudo nano /etc/httpd/conf/httpd.conf
 
 sudo systemctl restart httpd
 
-# after crating database in mariadb (below)
-sudo nano /var/www/html/wp-config.php
-
+# after creating database in mariadb (below)
+# test connection
+mysql -h 10.0.2.193 -u wpuser -p
 ```
+- visit `http://52.221.210.159/wp-admin/setup-config.php` (public IP of wordpress ec2)
+- DB_NAME: wordpress 
+- DB_USER: wpuser
+- DB_PASSWORD: notv3rysecurepassword
+- DB_HOST: 10.0.2.193
+- user: root
+- password: ^0K%h4ENiqb#4^Svo9
 
 ## MariaDB EC2
 - AMI: Amazon Linux 2
